@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1082372218178",
+    "project_id": "hawalik-f75aa",
+    "storage_bucket": "hawalik-f75aa.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1082372218178:android:be263c1f494404504e3cdb",
+        "android_client_info": {
+          "package_name": "com.example.hawalik"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA35JS8dZi9XVDu34OynZ80EP379jkt6x8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
