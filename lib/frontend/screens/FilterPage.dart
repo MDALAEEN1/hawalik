@@ -89,6 +89,8 @@ class _FilterPageState extends State<FilterPage> {
                                   productImage: imageUrl,
                                   ingredients: ingredients,
                                   restaurantId: restaurantId,
+                                  restaurant:
+                                      restaurant.data() as Map<String, dynamic>,
                                 ),
                               ),
                             );

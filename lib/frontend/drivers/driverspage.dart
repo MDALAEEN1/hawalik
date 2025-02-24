@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hawalik/assets/widgets/const.dart';
-import 'package:hawalik/frontend/drivers/MyOrdersPage.dart';
 import 'package:hawalik/frontend/drivers/OrderDetailsPage.dart';
 
 class OrdersPage extends StatefulWidget {
@@ -13,39 +12,88 @@ class OrdersPage extends StatefulWidget {
 class _OrdersPageState extends State<OrdersPage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  Future<void> _takeOrder(DocumentSnapshot order) async {
-    try {
-      final User? user = FirebaseAuth.instance.currentUser;
+  /// ✅ **جلب عدد الطلبات التي أخذها السائق**
+  Future<int> _getDriverOrderCount(String uid) async {
+    QuerySnapshot ordersSnapshot = await _firestore
+        .collection('my_orders')
+        .doc(uid)
+        .collection('orders')
+        .get();
+    return ordersSnapshot.docs.length; // عدد الطلبات
+  }
 
-      if (user == null) {
+  /// ✅ **دالة أخذ الطلب**
+  Future<void> _takeOrder(DocumentSnapshot order) async {
+    final User? user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("❌ يجب تسجيل الدخول لأخذ الطلب")),
+      );
+      return;
+    }
+
+    final String uid = user.uid;
+    final orderData = order.data() as Map<String, dynamic>;
+
+    // 🛑 **التأكد من عدد الطلبات الحالية**
+    int currentOrders = await _getDriverOrderCount(uid);
+    if (currentOrders >= 2) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text("⚠️ لا يمكنك أخذ أكثر من طلبين في نفس الوقت!")),
+      );
+      return;
+    }
+
+    // 🛑 **تأكيد أخذ الطلب**
+    bool confirm = await _showConfirmationDialog();
+    if (!confirm) return;
+
+    try {
+      // ✅ **جلب بيانات السائق**
+      DocumentSnapshot driverSnapshot =
+          await _firestore.collection('admin_drivers').doc(uid).get();
+
+      if (!driverSnapshot.exists) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("❌ يجب تسجيل الدخول لأخذ الطلب")),
+          const SnackBar(content: Text("❌ لم يتم العثور على بيانات السائق!")),
         );
         return;
       }
 
-      final String uid = user.uid;
+      double driverBalance = driverSnapshot['balance'] ?? 0; // رصيد السائق
+      double deliveryFee = orderData['deliveryFee'] ?? 0; // رسوم التوصيل
+      double deductionAmount = deliveryFee * 0.15; // حساب الخصم (15%)
 
-      // 🛑 التحقق من عدد الطلبات النشطة للسائق
-      QuerySnapshot myOrdersSnapshot = await _firestore
-          .collection('my_orders')
-          .doc(uid)
-          .collection('orders')
-          .get();
-
-      if (myOrdersSnapshot.docs.length >= 2) {
+      if (driverBalance < deductionAmount) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text("❌ لا يمكنك أخذ أكثر من طلبين في نفس الوقت!"),
-          ),
+              content: Text("❌ لا يوجد لديك رصيد كافٍ لأخذ هذا الطلب!")),
         );
         return;
       }
 
-      // ✅ السائق يمكنه أخذ الطلب
-      final orderData = order.data() as Map<String, dynamic>;
-      orderData['driverId'] = uid; // إضافة معرف السائق للطلب
+      // ✅ **تحديث رصيد السائق بعد الخصم**
+      double newBalance = driverBalance - deductionAmount;
+      await _firestore.collection('admin_drivers').doc(uid).update({
+        'balance': newBalance,
+      });
 
+      // ✅ **تحديث بيانات الطلب وإضافة معرف السائق**
+      orderData['driverId'] = uid;
+
+      // 🏪 **إضافة الطلب إلى قائمة طلبات المطعم**
+      if (orderData.containsKey('restaurantId')) {
+        await _firestore
+            .collection('restaurants')
+            .doc(orderData['restaurantId'])
+            .collection('orders')
+            .doc(order.id)
+            .set(orderData);
+      }
+
+      // 🚗 **إضافة الطلب إلى طلبات السائق**
       await _firestore
           .collection('my_orders')
           .doc(uid)
@@ -53,16 +101,41 @@ class _OrdersPageState extends State<OrdersPage> {
           .doc(order.id)
           .set(orderData);
 
+      // 🗑 **حذف الطلب من القائمة العامة بعد أخذه**
       await _firestore.collection('orders').doc(order.id).delete();
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("✅ تم أخذ الطلب بنجاح!")),
+        SnackBar(
+            content: Text(
+                "✅ تم أخذ الطلب بنجاح! ✅\n💰 تم خصم $deductionAmount JD من رصيدك.")),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("❌ خطأ: $e")),
       );
     }
+  }
+
+  /// 🔹 **نافذة تأكيد أخذ الطلب**
+  Future<bool> _showConfirmationDialog() async {
+    return await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text("تأكيد أخذ الطلب"),
+            content: const Text("هل أنت متأكد أنك تريد أخذ هذا الطلب؟"),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text("إلغاء"),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text("تأكيد"),
+              ),
+            ],
+          ),
+        ) ??
+        false;
   }
 
   @override

@@ -59,8 +59,12 @@ class _MyOrdersPageState extends State<MyOrdersPage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) =>
-                            OrderDetailsPage(orderData: orderData),
+                        builder: (context) => OrderDetailsPage(
+                          orderData: {
+                            ...orderData, // 🔹 تأكد من تمرير كل البيانات
+                            'orderId': order.id, // ✅ إضافة رقم الطلب
+                          },
+                        ),
                       ),
                     );
                   },

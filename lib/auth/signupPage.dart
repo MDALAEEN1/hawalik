@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:hawalik/assets/widgets/const.dart';
 import 'package:hawalik/frontend/screens/homePage.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 
 class Signup extends StatefulWidget {
   const Signup({super.key});
@@ -43,6 +44,7 @@ class _SignupState extends State<Signup> {
 
   @override
   Widget build(BuildContext context) {
+    final double screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
       backgroundColor: kbackground,
       body: Padding(
@@ -52,24 +54,27 @@ class _SignupState extends State<Signup> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              Container(
+                height: screenHeight * 0.12,
+              ),
               Icon(
-                Icons.card_travel,
+                LucideIcons.truck,
                 size: 250,
-                color: Colors.amber,
+                color: kapp,
               ),
               // اسم المستخدم
               Row(
                 children: [
                   Expanded(
                     child: TextField(
-                      style: TextStyle(color: Colors.lightBlue),
+                      style: TextStyle(color: Colors.black),
                       textAlign: TextAlign.center,
                       onChanged: (value) {
                         firstName = value;
                       },
                       decoration: const InputDecoration(
                           hintText: "First Name",
-                          hintStyle: TextStyle(color: Colors.lightBlue),
+                          hintStyle: TextStyle(color: Colors.black),
                           contentPadding: EdgeInsets.symmetric(
                               vertical: 10, horizontal: 20),
                           border: OutlineInputBorder(
@@ -80,14 +85,14 @@ class _SignupState extends State<Signup> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: TextField(
-                      style: TextStyle(color: Colors.lightBlue),
+                      style: TextStyle(color: Colors.black),
                       textAlign: TextAlign.center,
                       onChanged: (value) {
                         lastName = value;
                       },
                       decoration: const InputDecoration(
                           hintText: "Last Name",
-                          hintStyle: TextStyle(color: Colors.lightBlue),
+                          hintStyle: TextStyle(color: Colors.black),
                           contentPadding: EdgeInsets.symmetric(
                               vertical: 10, horizontal: 20),
                           border: OutlineInputBorder(
@@ -105,12 +110,12 @@ class _SignupState extends State<Signup> {
                     _selectDate(context), // استدعاء دالة اختيار التاريخ
                 child: AbsorbPointer(
                   child: TextField(
-                    style: TextStyle(color: Colors.lightBlue),
+                    style: TextStyle(color: Colors.black),
                     textAlign: TextAlign.center,
                     controller: TextEditingController(text: birthDate),
                     decoration: const InputDecoration(
                       hintText: "Birth Date",
-                      hintStyle: TextStyle(color: Colors.lightBlue),
+                      hintStyle: TextStyle(color: Colors.black),
                       contentPadding:
                           EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                       border: OutlineInputBorder(
@@ -123,14 +128,14 @@ class _SignupState extends State<Signup> {
 
               // الجنسية
               TextField(
-                style: TextStyle(color: Colors.lightBlue),
+                style: TextStyle(color: Colors.black),
                 textAlign: TextAlign.center,
                 onChanged: (value) {
                   nationality = value;
                 },
                 decoration: const InputDecoration(
                     hintText: "Nationality",
-                    hintStyle: TextStyle(color: Colors.lightBlue),
+                    hintStyle: TextStyle(color: Colors.black),
                     contentPadding:
                         EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                     border: OutlineInputBorder(
@@ -140,7 +145,7 @@ class _SignupState extends State<Signup> {
 
               // Email textField
               TextField(
-                style: TextStyle(color: Colors.lightBlue),
+                style: TextStyle(color: Colors.black),
                 keyboardType: TextInputType.emailAddress,
                 textAlign: TextAlign.center,
                 onChanged: (value) {
@@ -148,7 +153,7 @@ class _SignupState extends State<Signup> {
                 },
                 decoration: const InputDecoration(
                     hintText: "Enter your Email",
-                    hintStyle: TextStyle(color: Colors.lightBlue),
+                    hintStyle: TextStyle(color: Colors.black),
                     contentPadding:
                         EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                     border: OutlineInputBorder(
@@ -158,7 +163,7 @@ class _SignupState extends State<Signup> {
 
               // Password textField
               TextField(
-                style: TextStyle(color: Colors.lightBlue),
+                style: TextStyle(color: Colors.black),
                 obscureText: true,
                 textAlign: TextAlign.center,
                 onChanged: (value) {
@@ -166,7 +171,7 @@ class _SignupState extends State<Signup> {
                 },
                 decoration: const InputDecoration(
                     hintText: "Enter your Password",
-                    hintStyle: TextStyle(color: Colors.lightBlue),
+                    hintStyle: TextStyle(color: Colors.black),
                     contentPadding:
                         EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                     border: OutlineInputBorder(
@@ -226,7 +231,7 @@ class _SignupState extends State<Signup> {
                         MaterialStateProperty.all(Colors.lightBlue)),
                 child: const Text(
                   "Sign up",
-                  style: TextStyle(color: Colors.black38),
+                  style: TextStyle(color: ktext),
                 ),
               ),
               const SizedBox(height: 20),
@@ -237,7 +242,7 @@ class _SignupState extends State<Signup> {
                 children: [
                   const Text(
                     "Do you have an account? ",
-                    style: TextStyle(color: Colors.lightBlue),
+                    style: TextStyle(color: Colors.black),
                   ),
                   TextButton(
                     onPressed: () {

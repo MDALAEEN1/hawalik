@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hawalik/assets/widgets/const.dart';
 import 'package:hawalik/frontend/screens/homePage.dart';
+import 'package:hawalik/frontend/screens/myAllStuts.dart';
 import 'package:hawalik/frontend/widgets/categoriesFood.dart';
 import 'package:hawalik/frontend/widgets/searchfeild.dart';
 import 'package:hawalik/frontend/widgets/currentLocation.dart';
@@ -64,21 +65,39 @@ class _FoodPageState extends State<FoodPage> {
 
           // زر الرجوع
           Positioned(
-            top: MediaQuery.of(context).padding.top + 10,
+            top: statusBarHeight + 10,
             left: 10,
             child: IconButton(
-              icon: Icon(
-                Icons.arrow_back, // الأيقونة الخاصة بزر العودة
-                color: Colors.white, // لون الأيقونة
-                size: 24, // حجم الأيقونة
+              icon: const Icon(
+                Icons.arrow_back,
+                color: Colors.white,
+                size: 24,
               ),
               onPressed: () {
                 Navigator.pushAndRemoveUntil(
                   context,
-                  MaterialPageRoute(builder: (context) => Homepage()),
-                  (Route<dynamic> route) => false, // تحذف جميع الصفحات السابقة
+                  MaterialPageRoute(builder: (context) => const Homepage()),
+                  (Route<dynamic> route) => false,
                 );
-// العودة للصفحة السابقة
+              },
+            ),
+          ),
+
+          // زر الطلبات الحالية في أقصى اليمين
+          Positioned(
+            top: statusBarHeight + 10,
+            right: 10,
+            child: IconButton(
+              icon: const Icon(
+                Icons.shopping_cart, // أيقونة سلة الطلبات
+                color: Colors.white,
+                size: 24,
+              ),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => UserOrdersPage()),
+                );
               },
             ),
           ),
@@ -91,9 +110,9 @@ class _FoodPageState extends State<FoodPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: const Text(
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Text(
                     "Trending Hot🔥",
                     style: TextStyle(
                       fontSize: 20,
@@ -105,11 +124,11 @@ class _FoodPageState extends State<FoodPage> {
                 const SizedBox(height: 10),
 
                 // قائمة المواقع
-                Currentlocation(),
+                const Currentlocation(),
                 const SizedBox(height: 30),
 
                 // قسم الفئات (Categories)
-                RestaurantCategories(),
+                const RestaurantCategories(),
               ],
             ),
           ),

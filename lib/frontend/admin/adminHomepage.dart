@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hawalik/assets/widgets/const.dart';
-import 'package:hawalik/frontend/drivers/MyOrdersPage.dart';
-import 'package:hawalik/frontend/drivers/driverspage.dart';
-import 'package:hawalik/frontend/drivers/profilePage.dart';
+import 'package:hawalik/frontend/admin/Adspage.dart';
+import 'package:hawalik/frontend/admin/adminpage.dart';
+import 'package:hawalik/frontend/admin/tesrourants.dart';
 import 'package:lucide_icons/lucide_icons.dart'; // مكتبة أيقونات جميلة
 
 class Homepage extends StatelessWidget {
@@ -39,7 +39,7 @@ class Homepage extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20.0),
                   child: Text(
-                    "bomba",
+                    "Admin",
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       fontSize: 32,
@@ -82,21 +82,21 @@ class Homepage extends StatelessWidget {
                       physics: const NeverScrollableScrollPhysics(),
                       children: [
                         GridItem(
-                            title: "My orders",
+                            title: "Drivers",
                             icon: LucideIcons.listOrdered,
                             color: Colors.blueAccent, // لون أزرق فاتح
-                            screen: MyOrdersPage()),
+                            screen: AdminDriversPage()),
                         GridItem(
-                          title: "Orders",
+                          title: "Adds",
                           icon: LucideIcons.truck,
                           color: Colors.lightBlue, // لون أزرق فاتح آخر
-                          screen: OrdersPage(),
+                          screen: AdsPage(),
                         ),
                         GridItem(
-                            title: "My acount",
+                            title: "Restournts",
                             icon: LucideIcons.activity,
                             color: Colors.blueAccent, // لون أزرق فاتح
-                            screen: DriverProfilePage()),
+                            screen: RestaurantsPage()),
                       ],
                     ),
                   ),

@@ -5,8 +5,6 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:hawalik/assets/widgets/const.dart';
 import 'package:hawalik/frontend/screens/SelectLocationPage.dart';
-import 'package:hawalik/frontend/screens/foodPage.dart';
-import 'package:hawalik/frontend/screens/orderstauts.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -84,7 +82,7 @@ class _OrderConfirmationPageState extends State<OrderConfirmationPage> {
   Future<void> _calculateDeliveryFee() async {
     if (userLocation == null) return;
 
-    const String apiKey = "AIzaSyAGRcrYOyi7AtX-aJOdbvXaPFYUO7RMHnM";
+    const String apiKey = "google map api";
     final String url =
         "https://maps.googleapis.com/maps/api/distancematrix/json?origins=${storeLocation.latitude},${storeLocation.longitude}&destinations=${userLocation!.latitude},${userLocation!.longitude}&mode=driving&key=$apiKey";
 
@@ -122,7 +120,7 @@ class _OrderConfirmationPageState extends State<OrderConfirmationPage> {
     }
 
     try {
-      await _firestore.collection('orders').add({
+      DocumentReference orderRef = await _firestore.collection('orders').add({
         'userId': _auth.currentUser?.uid,
         'userName': userName,
         'userPhone': userPhone,
@@ -134,10 +132,12 @@ class _OrderConfirmationPageState extends State<OrderConfirmationPage> {
           'latitude': userLocation!.latitude,
           'longitude': userLocation!.longitude,
         },
-        'status': 'Pending',
+        'status': 'قيد التحضير',
         'timestamp': FieldValue.serverTimestamp(),
         'products': widget.cartItems, // إضافة قائمة المنتجات
       });
+
+      String orderId = orderRef.id; // 🔹 حفظ الـ orderId الجديد
 
       await _clearCartForRestaurant(widget.restaurantId);
 
@@ -145,11 +145,7 @@ class _OrderConfirmationPageState extends State<OrderConfirmationPage> {
         const SnackBar(content: Text("✅ تم تأكيد الطلب بنجاح")),
       );
 
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => CartPage()),
-        (Route<dynamic> route) => false, // تحذف جميع الصفحات السابقة
-      );
+      // 🔹 تمرير orderId عند الانتقال إلى CartPage
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("❌ حدث خطأ أثناء تأكيد الطلب: $e")),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hawalik/assets/widgets/const.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cloud_firestore/cloud_firestore.dart'; // 🔹 استيراد Firestore
+import 'package:firebase_auth/firebase_auth.dart';
 
 class OrderDetailsPage extends StatefulWidget {
   final Map<String, dynamic> orderData;
@@ -14,6 +15,9 @@ class OrderDetailsPage extends StatefulWidget {
 
 class _OrderDetailsPageState extends State<OrderDetailsPage> {
   String restaurantName = "جارِ التحميل..."; // 🔹 اسم المطعم الافتراضي
+  String getCurrentUserId() {
+    return FirebaseAuth.instance.currentUser?.uid ?? '';
+  }
 
   @override
   void initState() {
@@ -45,6 +49,61 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
           restaurantName = 'خطأ في التحميل';
         });
         debugPrint("❌ خطأ في جلب اسم المطعم: $e");
+      }
+    }
+  }
+
+  Future<void> _markAsDelivered() async {
+    bool confirmDelete = await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("تأكيد الحذف"),
+          content: const Text("هل أنت متأكد أنك تريد حذف هذا الطلب؟"),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false), // ❌ إلغاء
+              child: const Text("إلغاء"),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true), // ✅ تأكيد
+              child: const Text("حذف"),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmDelete == true) {
+      try {
+        final user = FirebaseAuth.instance.currentUser;
+        if (user == null) {
+          throw Exception("❌ لا يوجد مستخدم مسجل!");
+        }
+
+        String? orderId = widget.orderData['orderId']; // 🔹 استخدم String?
+
+        if (orderId == null || orderId.isEmpty) {
+          throw Exception("❌ رقم الطلب غير موجود!");
+        }
+
+        await FirebaseFirestore.instance
+            .collection('my_orders')
+            .doc(user.uid)
+            .collection("orders")
+            .doc(orderId)
+            .delete();
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("✅ تم تسليم الطلب وحذفه بنجاح")),
+        );
+
+        Navigator.pop(context);
+      } catch (e) {
+        debugPrint("❌ خطأ في حذف الطلب: $e");
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("حدث خطأ أثناء حذف الطلب")),
+        );
       }
     }
   }
@@ -87,6 +146,12 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
             const SizedBox(height: 10),
             _buildProductList(
                 widget.orderData['products'] as List<dynamic>? ?? []),
+            ElevatedButton(
+              onPressed: _markAsDelivered,
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+              child: const Text("✅ تم التسليم",
+                  style: TextStyle(color: Colors.white)),
+            ),
           ],
         ),
       ),

@@ -28,26 +28,57 @@ class _CartPageState extends State<CartPage> {
     String? userId = _auth.currentUser?.uid;
     if (userId == null) return;
 
-    // جلب الطلب النشط لهذا المستخدم
-    QuerySnapshot orderSnapshot = await _firestore
-        .collection('orders')
+    // جلب المطعم الذي طلب منه المستخدم
+    QuerySnapshot restaurantSnapshot = await _firestore
+        .collection('restaurants')
         .where('userId', isEqualTo: userId)
         .limit(1)
         .get();
 
-    if (orderSnapshot.docs.isNotEmpty) {
-      var orderData = orderSnapshot.docs.first.data() as Map<String, dynamic>;
+    if (restaurantSnapshot.docs.isNotEmpty) {
+      String restaurantId = restaurantSnapshot.docs.first.id;
 
+      // جلب الطلب النشط من orders داخل هذا المطعم
+      QuerySnapshot orderSnapshot = await _firestore
+          .collection('restaurants')
+          .doc(restaurantId)
+          .collection('orders')
+          .where('userId', isEqualTo: userId)
+          .where('status', isNotEqualTo: "مكتمل") // تجنب الطلبات المنتهية
+          .orderBy('timestamp', descending: true) // جلب أحدث طلب
+          .limit(1)
+          .get();
+
+      if (orderSnapshot.docs.isNotEmpty) {
+        var orderData = orderSnapshot.docs.first.data() as Map<String, dynamic>;
+
+        setState(() {
+          totalAmount = orderData['totalAmount'] ?? 0.0;
+          deliveryFee = orderData['deliveryFee'] ?? 0.0;
+          orderStatus = orderData['status'] ?? "قيد المراجعة";
+          cartItems =
+              List<Map<String, dynamic>>.from(orderData['products'] ?? []);
+
+          if (orderData.containsKey('driverId')) {
+            _loadDriverData(orderData['driverId']);
+          }
+        });
+      } else {
+        // إذا لم يكن هناك طلب نشط
+        setState(() {
+          orderStatus = "البحث عن سائق";
+          totalAmount = 0.0;
+          deliveryFee = 0.0;
+          cartItems = [];
+        });
+      }
+    } else {
+      // في حال لم يتم العثور على المطعم أيضًا
       setState(() {
-        totalAmount = orderData['totalAmount'] ?? 0.0;
-        deliveryFee = orderData['deliveryFee'] ?? 0.0;
-        orderStatus = orderData['status'] ?? "قيد المراجعة";
-        cartItems =
-            List<Map<String, dynamic>>.from(orderData['products'] ?? []);
-
-        if (orderData.containsKey('driverId')) {
-          _loadDriverData(orderData['driverId']);
-        }
+        orderStatus = "البحث عن سائق";
+        totalAmount = 0.0;
+        deliveryFee = 0.0;
+        cartItems = [];
       });
     }
   }

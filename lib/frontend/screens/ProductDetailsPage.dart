@@ -1,6 +1,8 @@
+// ProductDetailsPage.dart
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:hawalik/frontend/screens/StorePage.dart';
 
 class ProductDetailsPage extends StatefulWidget {
   final String productName;
@@ -8,7 +10,8 @@ class ProductDetailsPage extends StatefulWidget {
   final String productPrice;
   final String productImage;
   final List<String> ingredients;
-  final String restaurantId; // إضافة معرف المطعم
+  final String restaurantId;
+  final Map<String, dynamic> restaurant; // Add restaurant data
 
   const ProductDetailsPage({
     super.key,
@@ -17,7 +20,8 @@ class ProductDetailsPage extends StatefulWidget {
     required this.productPrice,
     required this.productImage,
     required this.ingredients,
-    required this.restaurantId, // تمرير معرف المطعم
+    required this.restaurantId,
+    required this.restaurant, // Pass restaurant data
   });
 
   @override
@@ -26,7 +30,7 @@ class ProductDetailsPage extends StatefulWidget {
 
 class _ProductDetailsPageState extends State<ProductDetailsPage> {
   late List<String> selectedIngredients;
-  int quantity = 1; // كمية المنتجات الافتراضية
+  int quantity = 1;
 
   @override
   void initState() {
@@ -80,7 +84,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
         'productImage': widget.productImage,
         'ingredients': selectedIngredients,
         'quantity': quantity,
-        'restaurantId': widget.restaurantId, // إضافة معرف المطعم
+        'restaurantId': widget.restaurantId,
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -100,6 +104,20 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
         title: Text(widget.productName,
             style: TextStyle(fontSize: 23, fontWeight: FontWeight.bold)),
         backgroundColor: Colors.blue,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(
+                builder: (context) => StorePage(
+                  restaurantId: widget.restaurantId,
+                  restaurant: widget.restaurant, // Pass restaurant data
+                ),
+              ),
+              (Route<dynamic> route) => false,
+            );
+          },
+        ),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -123,14 +141,12 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                 style: const TextStyle(fontSize: 16, color: Colors.grey),
               ),
               const SizedBox(height: 20),
-              Container(
-                child: Text(
-                  "السعر: ${widget.productPrice} JD",
-                  style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.green),
-                ),
+              Text(
+                "السعر: ${widget.productPrice} JD",
+                style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.green),
               ),
               const SizedBox(height: 20),
               Row(
@@ -161,7 +177,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
               ),
               const SizedBox(height: 10),
               const Text(
-                "إضافة/إزالة المكونات:",
+                "المكونات",
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               Wrap(

@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hawalik/assets/widgets/const.dart';
 import 'package:hawalik/auth/signupPage.dart';
 import 'package:hawalik/frontend/screens/homePage.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -31,16 +32,16 @@ class _LoginPageState extends State<LoginPage> {
                   CrossAxisAlignment.stretch, // المحاذاة الأفقية
               children: [
                 Icon(
-                  Icons.card_travel,
+                  LucideIcons.truck,
                   size: 250,
-                  color: Colors.amber,
+                  color: kapp,
                 ),
                 const SizedBox(
                     height: 20), // مسافة بين الأيقونة والمحتوى التالي
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8),
                   child: TextField(
-                    style: TextStyle(color: Colors.lightBlue),
+                    style: TextStyle(color: Colors.black),
                     keyboardType: TextInputType.emailAddress,
                     textAlign: TextAlign.center,
                     onChanged: (value) {
@@ -48,7 +49,7 @@ class _LoginPageState extends State<LoginPage> {
                     },
                     decoration: const InputDecoration(
                         hintText: "Enter your Email",
-                        hintStyle: TextStyle(color: Colors.lightBlue),
+                        hintStyle: TextStyle(color: Colors.black),
                         contentPadding:
                             EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                         border: OutlineInputBorder(
@@ -60,7 +61,7 @@ class _LoginPageState extends State<LoginPage> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8),
                   child: TextField(
-                    style: TextStyle(color: Colors.lightBlue),
+                    style: TextStyle(color: Colors.black),
                     obscureText: true,
                     textAlign: TextAlign.center,
                     onChanged: (value) {
@@ -68,7 +69,7 @@ class _LoginPageState extends State<LoginPage> {
                     },
                     decoration: const InputDecoration(
                         hintText: "Enter your Password",
-                        hintStyle: TextStyle(color: Colors.lightBlue),
+                        hintStyle: TextStyle(color: Colors.black),
                         contentPadding:
                             EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                         border: OutlineInputBorder(
@@ -121,12 +122,10 @@ class _LoginPageState extends State<LoginPage> {
                             }
                           },
                     style: ButtonStyle(
-                        backgroundColor:
-                            MaterialStateProperty.all(Colors.amber)),
+                        backgroundColor: MaterialStateProperty.all(kapp)),
                     child: isLoading
                         ? const CircularProgressIndicator()
-                        : const Text("Sign in",
-                            style: TextStyle(color: Colors.lightBlue)),
+                        : const Text("Sign in", style: TextStyle(color: ktext)),
                   ),
                 ),
                 Padding(
@@ -137,7 +136,7 @@ class _LoginPageState extends State<LoginPage> {
                     children: [
                       Text(
                         "Don't have an account?",
-                        style: TextStyle(color: Colors.lightBlue),
+                        style: TextStyle(color: Colors.black),
                       ),
                       TextButton(
                         onPressed: () {

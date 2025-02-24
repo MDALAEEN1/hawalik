@@ -18,6 +18,18 @@ class _RestaurantMenuPageState extends State<RestaurantMenuPage> {
   final TextEditingController _productImageController = TextEditingController();
   final TextEditingController _ingredientsController = TextEditingController();
 
+  String _selectedCategory = ''; // 🔹 الفئة الافتراضية
+
+  final List<String> _categories = [
+    'Pizza',
+    'Burger',
+    'Fish',
+    'Pasta',
+    'Dessert',
+    'Drinks',
+    'Breakfast'
+  ];
+
   // إضافة منتج جديد
   void _addProduct() async {
     final name = _productNameController.text;
@@ -46,6 +58,7 @@ class _RestaurantMenuPageState extends State<RestaurantMenuPage> {
       'price': price,
       'imageUrl': imageUrl,
       'ingredients': ingredients,
+      'category': _selectedCategory, // 🔹 تخزين الفئة المختارة
     });
 
     _clearTextFields();
@@ -78,23 +91,28 @@ class _RestaurantMenuPageState extends State<RestaurantMenuPage> {
       _productPriceController.text = product['price'];
       _productImageController.text = product['imageUrl'];
       _ingredientsController.text = product['ingredients'].join(', ');
+      _selectedCategory =
+          product['category'] ?? 'pizza'; // 🔹 تعبئة الفئة الحالية
 
       showDialog(
         context: context,
         builder: (context) {
           return AlertDialog(
             title: const Text('تعديل المنتج'),
-            content: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _buildTextField(_productNameController, 'الاسم'),
-                _buildTextField(_productDescriptionController, 'الوصف'),
-                _buildTextField(_productPriceController, 'السعر'),
-                _buildTextField(_productImageController, 'رابط الصورة'),
-                _buildTextField(
-                    _ingredientsController, 'المكونات (فصلها بفواصل)'),
-              ],
+            content: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildTextField(_productNameController, 'الاسم'),
+                  _buildTextField(_productDescriptionController, 'الوصف'),
+                  _buildTextField(_productPriceController, 'السعر'),
+                  _buildTextField(_productImageController, 'رابط الصورة'),
+                  _buildTextField(
+                      _ingredientsController, 'المكونات (فصلها بفواصل)'),
+                  const SizedBox(height: 10),
+                  _buildCategoryDropdown(), // 🔹 إضافة القائمة المنسدلة
+                ],
+              ),
             ),
             actions: [
               TextButton(
@@ -108,6 +126,7 @@ class _RestaurantMenuPageState extends State<RestaurantMenuPage> {
                         .split(',')
                         .map((e) => e.trim())
                         .toList(),
+                    'category': _selectedCategory, // 🔹 تحديث الفئة
                   });
 
                   _clearTextFields();
@@ -129,6 +148,9 @@ class _RestaurantMenuPageState extends State<RestaurantMenuPage> {
     _productPriceController.clear();
     _productImageController.clear();
     _ingredientsController.clear();
+    setState(() {
+      _selectedCategory = 'pizza'; // 🔹 إعادة ضبط الفئة
+    });
   }
 
   // عرض رسالة SnackBar
@@ -155,6 +177,30 @@ class _RestaurantMenuPageState extends State<RestaurantMenuPage> {
     );
   }
 
+  // بناء القائمة المنسدلة
+  Widget _buildCategoryDropdown() {
+    return DropdownButtonFormField<String>(
+      value: _categories.contains(_selectedCategory)
+          ? _selectedCategory
+          : _categories.first, // ✅ التأكد من أن القيمة موجودة
+      items: _categories.map((category) {
+        return DropdownMenuItem<String>(
+          value: category,
+          child: Text(category.toUpperCase()),
+        );
+      }).toList(),
+      onChanged: (value) {
+        setState(() {
+          _selectedCategory = value!;
+        });
+      },
+      decoration: const InputDecoration(
+        labelText: 'نوع المنتج',
+        border: OutlineInputBorder(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -176,6 +222,8 @@ class _RestaurantMenuPageState extends State<RestaurantMenuPage> {
                 _buildTextField(_productImageController, 'رابط الصورة'),
                 _buildTextField(
                     _ingredientsController, 'المكونات (فصلها بفواصل)'),
+                const SizedBox(height: 10),
+                _buildCategoryDropdown(), // 🔹 إضافة القائمة المنسدلة
                 const SizedBox(height: 10),
                 ElevatedButton(
                   onPressed: _addProduct,
@@ -209,19 +257,18 @@ class _RestaurantMenuPageState extends State<RestaurantMenuPage> {
                     final product = products[index].data();
                     final productId = products[index].id;
                     return ListTile(
-                      title: Text(product['name']),
+                      title: Text(
+                          "${product['name']} (${product['category']})"), // 🔹 عرض الفئة
                       subtitle: Text('السعر: ${product['price']}'),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           IconButton(
-                            icon: const Icon(Icons.edit),
-                            onPressed: () => _editProduct(productId),
-                          ),
+                              icon: const Icon(Icons.edit),
+                              onPressed: () => _editProduct(productId)),
                           IconButton(
-                            icon: const Icon(Icons.delete),
-                            onPressed: () => _deleteProduct(productId),
-                          ),
+                              icon: const Icon(Icons.delete),
+                              onPressed: () => _deleteProduct(productId)),
                         ],
                       ),
                     );

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:hawalik/frontend/screens/ProductDetailsPage.dart';
 import 'package:hawalik/frontend/screens/cartPage.dart';
+import 'package:hawalik/frontend/screens/foodPage.dart';
 
 class StorePage extends StatelessWidget {
   final Map<String, dynamic> restaurant;
@@ -48,10 +49,15 @@ class StorePage extends StatelessWidget {
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: IconButton(
-                          icon: const Icon(Icons.arrow_back,
-                              color: Colors.white, size: 24),
-                          onPressed: () => Navigator.pop(context),
-                        ),
+                            icon: const Icon(Icons.arrow_back,
+                                color: Colors.white, size: 24),
+                            onPressed: () {
+                              Navigator.of(context).pushAndRemoveUntil(
+                                MaterialPageRoute(
+                                    builder: (context) => FoodPage()),
+                                (Route<dynamic> route) => false,
+                              );
+                            }),
                       ),
                     ),
                     SizedBox(height: statusBarHeight + 16),
@@ -204,14 +210,14 @@ class StorePage extends StatelessWidget {
                               context,
                               MaterialPageRoute(
                                 builder: (context) => ProductDetailsPage(
-                                  productName: item['name'],
-                                  productDescription: item['description'],
-                                  productPrice: item['price'],
-                                  productImage: item['imageUrl'],
-                                  restaurantId: restaurantId,
-                                  ingredients: List<String>.from(
-                                      item['ingredients'] ?? []),
-                                ),
+                                    productName: item['name'],
+                                    productDescription: item['description'],
+                                    productPrice: item['price'],
+                                    productImage: item['imageUrl'],
+                                    restaurantId: restaurantId,
+                                    ingredients: List<String>.from(
+                                        item['ingredients'] ?? []),
+                                    restaurant: restaurant),
                               ),
                             );
                           },

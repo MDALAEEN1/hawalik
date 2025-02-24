@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:hawalik/auth/loginPage.dart';
 import 'package:hawalik/firebase_options.dart';
-import 'package:hawalik/frontend/screens/FilterPage.dart';
-import 'package:hawalik/frontend/drivers/driverspage.dart';
-import 'package:hawalik/frontend/resuorant/RestaurantMenuAdminPage.dart';
-import 'package:hawalik/frontend/screens/foodPage.dart';
-import 'package:firebase_core/firebase_core.dart';
+import 'package:hawalik/frontend/admin/adminHomepage.dart';
 
-import 'frontend/drivers/homePage.dart';
+import 'package:hawalik/frontend/screens/FilterPage.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:hawalik/frontend/screens/foodPage.dart';
+import 'package:hawalik/frontend/screens/myAllStuts.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,7 +21,7 @@ class DeliveryApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(primarySwatch: Colors.blue),
-      home: Homepage(),
+      home: FoodPage(),
       routes: {
         '/filterPage': (context) => const FilterPage(),
       },
